@@ -13,7 +13,7 @@
   const dispatch = createEventDispatcher();
   let callbacksReady = false;
   let readyPromiseResolve;
-  const readyPromise = new Promise(resolve => {
+  const readyPromise = new Promise((resolve) => {
     readyPromiseResolve = resolve;
   });
 
@@ -27,12 +27,14 @@
       // 确保所有事件都包含instanceId
       const eventData = {
         ...data,
-        instanceId: data?.instanceId || ''
+        instanceId: data?.instanceId || "",
       };
-      
+
       // 只处理匹配当前实例ID的事件
       if (eventData.instanceId !== instanceId) {
-        console.debug(`忽略不匹配实例的事件: ${eventName} (期望: ${instanceId}, 收到: ${eventData.instanceId})`);
+        console.debug(
+          `忽略不匹配实例的事件: ${eventName} (期望: ${instanceId}, 收到: ${eventData.instanceId})`
+        );
         return;
       }
 
@@ -68,7 +70,7 @@
         wmode: "transparent",
         logLevel: "debug",
         autoplay: "on",
-        unmuteOverlay:"hidden",
+        unmuteOverlay: "hidden",
         upgradeToHttps: window.location.protocol === "https:",
       })
       .then(() => {
@@ -78,8 +80,9 @@
 
   const destroyPlayer = () => {
     if (player && container) {
+      player.pause();
       container.removeChild(player);
-      callbacksReady=false;
+      callbacksReady = false;
       player = null;
     }
   };
@@ -95,25 +98,34 @@
   export async function whenReady() {
     await readyPromise;
     while (!callbacksReady) {
-      await new Promise(r => setTimeout(r, 16)); // 等待1帧
+      await new Promise((r) => setTimeout(r, 16)); // 等待1帧
     }
   }
 
   onMount(async () => {
     await loadRuffle();
     createPlayer();
-    
+
     // 监听回调就绪事件
-    window.addEventListener('message', (e) => {
-      if (e.data?.type === 'petRenderCallbacksReady') {
+    window.addEventListener("message", (e) => {
+      if (e.data?.type === "petRenderCallbacksReady") {
         // 确保事件包含instanceId且匹配当前实例
         if (e.data.instanceId === instanceId) {
           callbacksReady = true;
         } else {
-          console.debug(`忽略不匹配实例的回调就绪事件 (期望: ${instanceId}, 收到: ${e.data.instanceId})`);
+          console.debug(
+            `忽略不匹配实例的回调就绪事件 (期望: ${instanceId}, 收到: ${e.data.instanceId})`
+          );
         }
       }
     });
+  });
+  
+  onMount(() => {
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/@ruffle-rs/ruffle";
+    script.async = true;
+    document.body.appendChild(script);
   });
 
   onDestroy(() => {
@@ -154,7 +166,7 @@
 
   // 播放控制方法
   export function play() {
-    if(!player) createPlayer()
+    if (!player) createPlayer();
     player?.play();
   }
 
