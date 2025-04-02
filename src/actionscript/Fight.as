@@ -174,7 +174,6 @@ package
             else if (isLoopState(currentState))
             {
                 return;
-
             }
             else
             {
