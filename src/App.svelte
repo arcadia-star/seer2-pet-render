@@ -10,7 +10,6 @@
   let animationMeta: any = null;
   let debugLogs: string[] = [];
   let availableStates: string[] = [];
-  let lastState = "";
 
   const handleFileSelect = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -21,11 +20,8 @@
   };
 
   const handleAnimationComplete = (e: CustomEvent) => {
-    if (currentState !== lastState) {
-      addLog(`动画完成: ${JSON.stringify(e.detail)}`);
-      console.log(e.detail);
-      lastState = currentState;
-    }
+    addLog(`动画完成: ${JSON.stringify(e.detail)}`);
+    console.log(e.detail);
   };
 
   const handleHit = (e: CustomEvent) => {
@@ -59,7 +55,6 @@
     petRender?.setState(state);
     currentState = state;
     addLog(`设置状态: ${state}`);
-    lastState = ""; // 重置lastState以强制下次动画完成时记录
   };
 
   const getState = () => {
@@ -73,8 +68,10 @@
     status = `已加载URL: ${urlInput}`;
   };
 
-  const handleSWFReady = () => {
+  const handleSWFReady = async () => {
     addLog("SWF准备就绪");
+    await petRender?.whenReady();
+    addLog("所有就绪条件满足");
     getState();
     updateAvailableStates();
   };

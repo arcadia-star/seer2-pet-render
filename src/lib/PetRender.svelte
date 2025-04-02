@@ -11,6 +11,11 @@
   let container = null;
   let animationMeta = null;
   const dispatch = createEventDispatcher();
+  let callbacksReady = false;
+  let readyPromiseResolve;
+  const readyPromise = new Promise(resolve => {
+    readyPromiseResolve = resolve;
+  });
 
   const loadRuffle = async () => {
     if (window.RufflePlayer) return;
@@ -69,12 +74,28 @@
   // 处理SWF准备就绪事件
   function handleSWFReady() {
     console.log("swfready");
+    readyPromiseResolve();
     dispatch("swfready");
+  }
+
+  // 等待完全就绪
+  export async function whenReady() {
+    await readyPromise;
+    while (!callbacksReady) {
+      await new Promise(r => setTimeout(r, 16)); // 等待1帧
+    }
   }
 
   onMount(async () => {
     await loadRuffle();
     createPlayer();
+    
+    // 监听回调就绪事件
+    window.addEventListener('message', (e) => {
+      if (e.data === 'petRenderCallbacksReady') {
+        callbacksReady = true;
+      }
+    });
   });
 
   onDestroy(() => {

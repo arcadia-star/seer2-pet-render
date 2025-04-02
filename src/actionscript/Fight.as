@@ -52,6 +52,8 @@ package
                     initMovieClip(loader);
                     reportAnimationInfo();
                     setState(FighterActionType.IDLE);
+                    ExternalInterface.call("eval",
+                            "window.postMessage('petRenderCallbacksReady', '*')");
                 });
             var finalUrl:String = url;
             if (url.indexOf("http://") === 0)
