@@ -8,34 +8,28 @@
   let urlInput = "fight/100.swf";
   let currentState = "";
   let animationMeta: any = null;
-  let callbacks = {
-    animationComplete: null,
-    hit: null,
-  };
   let debugLogs: string[] = [];
+  let lastState = "";
 
   const handleFileSelect = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
       prop.url = URL.createObjectURL(file);
       status = `已加载: ${file.name}`;
-      initCallbacks();
     }
   };
 
-  const initCallbacks = () => {
-    petRender?.registerCallbacks(
-      (data: any) => {
-        callbacks.animationComplete = data;
-        addLog(`动画完成: ${JSON.stringify(data)}`);
-        console.log(data);
-      },
-      (data: any) => {
-        callbacks.hit = data;
-        addLog(`命中事件: ${JSON.stringify(data)}`);
-        console.log(data);
-      }
-    );
+  const handleAnimationComplete = (e: CustomEvent) => {
+    if (currentState !== lastState) {
+      addLog(`动画完成: ${JSON.stringify(e.detail)}`);
+      console.log(e.detail);
+      lastState = currentState;
+    }
+  };
+
+  const handleHit = (e: CustomEvent) => {
+    addLog(`命中事件: ${JSON.stringify(e.detail)}`);
+    console.log(e.detail);
   };
 
   const addLog = (message: string) => {
@@ -64,6 +58,7 @@
     petRender?.setState(state);
     currentState = state;
     addLog(`设置状态: ${state}`);
+    lastState = ""; // 重置lastState以强制下次动画完成时记录
   };
 
   const getState = () => {
@@ -75,7 +70,6 @@
   const handleUrlSubmit = () => {
     prop.url = urlInput;
     status = `已加载URL: ${urlInput}`;
-    initCallbacks();
   };
 
   const handleSWFReady = () => {
@@ -136,6 +130,8 @@
           {prop}
           on:swfready={handleSWFReady}
           on:animationmetaready={handleMetaReady}
+          on:animationComplete={handleAnimationComplete}
+          on:hit={handleHit}
         />
       </div>
       <div class="debug-logs">

@@ -184,7 +184,7 @@ package
 
         private function getAnimationDuration():Number
         {
-            return mc.totalFrames / stage.frameRate;
+            return activeAnimationMC.totalFrames / stage.frameRate;
         }
 
         private function isLoopState(state:String):Boolean

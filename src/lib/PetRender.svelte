@@ -3,16 +3,14 @@
 <script>
   // @ts-nocheck
   import { onMount, onDestroy } from "svelte";
+  import { createEventDispatcher } from "svelte";
 
   export let prop = { url: "" };
   let player = null;
   const swfUrl = "petContainer.swf";
   let container = null;
   let animationMeta = null;
-  let callbacks = {
-    onAnimationComplete: null,
-    onHit: null,
-  };
+  const dispatch = createEventDispatcher();
 
   const loadRuffle = async () => {
     if (window.RufflePlayer) return;
@@ -23,14 +21,10 @@
       console.debug(`收到 SWF 事件: ${eventName}`, data);
       switch (eventName) {
         case "animationComplete":
-          if (callbacks.onAnimationComplete) {
-            callbacks.onAnimationComplete(data);
-          }
+          dispatch("animationComplete", data);
           break;
         case "hit":
-          if (callbacks.onHit) {
-            callbacks.onHit(data);
-          }
+          dispatch("hit", data);
           break;
         default:
           console.warn(`未知事件: ${eventName}`);
@@ -49,21 +43,22 @@
     player.style.height = "100%";
     container.appendChild(player);
 
-    player.ruffle().load({
-      url: `${swfUrl}?url=${encodeURIComponent(prop.url)}`,
-      allowScriptAccess: true, // 需要允许脚本访问以支持ExternalInterface
-      wmode: "transparent",
-      logLevel: "debug",
-      upgradeToHttps: window.location.protocol === "https:",
-    });
-
-    // 监听SWF事件
-    player.addEventListener("loadedmetadata", handleSWFReady);
+    player
+      .ruffle()
+      .load({
+        url: `${swfUrl}?url=${encodeURIComponent(prop.url)}`,
+        allowScriptAccess: true, // 需要允许脚本访问以支持ExternalInterface
+        wmode: "transparent",
+        logLevel: "debug",
+        upgradeToHttps: window.location.protocol === "https:",
+      })
+      .then(() => {
+        handleSWFReady();
+      });
   };
 
   const destroyPlayer = () => {
     if (player && container) {
-      player.removeEventListener("loadedmetadata", handleSWFReady);
       container.removeChild(player);
       player = null;
     }
@@ -75,32 +70,6 @@
     dispatchEvent(new CustomEvent("swfready"));
   }
 
-  // 处理动画完成事件
-  function handleAnimationComplete(e) {
-    if (!player || !callbacks.onAnimationComplete) return;
-    const state = getState();
-    if (state) {
-      callbacks.onAnimationComplete({
-        state: state,
-        duration: e.duration,
-      });
-    }
-  }
-
-  // 处理命中事件
-  function handleHit(e) {
-    if (callbacks.onHit) {
-      callbacks.onHit({
-        state: getState(),
-      });
-    }
-  }
-
-  // 接收动画元数据
-  function handleAnimationMeta(meta) {
-    animationMeta = meta;
-    dispatchEvent(new CustomEvent("animationmetaready", { detail: meta }));
-  }
 
   onMount(async () => {
     await loadRuffle();
