@@ -1,84 +1,176 @@
 <script lang="ts">
-  import PetRender from './lib/PetRender.svelte';
+  import PetRender from "./lib/PetRender.svelte";
+  import { ActionState } from "./actionscript/FighterActionType";
 
-  let swfUrl = '';
+  let prop = { url: "http://seer2.61.com/res/pet/fight/100.swf" };
   let petRender: PetRender;
-  let status = '请选择SWF文件或输入URL';
-  let urlInput = '';
-  let customSuffix = '';
+  let status = "请选择SWF文件或输入URL";
+  let urlInput = "http://seer2.61.com/res/pet/fight/100.swf";
+  let currentState = "";
+  let animationMeta: any = null;
+  let callbacks = {
+    animationComplete: null,
+    hit: null,
+  };
+  let debugLogs: string[] = [];
 
   const handleFileSelect = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
-      swfUrl = URL.createObjectURL(file)+ customSuffix;
-      status = `已加载: ${file.name}${customSuffix}`;
+      prop.url = URL.createObjectURL(file);
+      status = `已加载: ${file.name}`;
+      initCallbacks();
     }
+  };
+
+  const initCallbacks = () => {
+    petRender?.registerCallbacks(
+      (data: any) => {
+        callbacks.animationComplete = data;
+        addLog(`动画完成: ${JSON.stringify(data)}`);
+        console.log(data);
+      },
+      (data: any) => {
+        callbacks.hit = data;
+        addLog(`命中事件: ${JSON.stringify(data)}`);
+        console.log(data);
+      }
+    );
+  };
+
+  const addLog = (message: string) => {
+    debugLogs = [message, ...debugLogs].slice(0, 50);
   };
 
   const play = () => {
     petRender?.play();
-    status = '播放中...';
+    status = "播放中...";
+    addLog("播放命令已发送");
   };
 
   const pause = () => {
     petRender?.pause();
-    status = '已暂停';
+    status = "已暂停";
+    addLog("暂停命令已发送");
   };
 
   const stop = () => {
     petRender?.stop();
-    status = '已停止';
+    status = "已停止";
+    addLog("停止命令已发送");
+  };
+
+  const setState = (state: string) => {
+    petRender?.setState(state);
+    currentState = state;
+    addLog(`设置状态: ${state}`);
+  };
+
+  const getState = () => {
+    currentState = petRender?.getState() || "";
+    addLog(`当前状态: ${currentState}`);
+    return currentState;
   };
 
   const handleUrlSubmit = () => {
-    if (urlInput.startsWith('http://') || urlInput.startsWith('https://')) {
-      swfUrl = urlInput + customSuffix;
-      status = `已加载URL: ${urlInput}${customSuffix}`;
+    if (urlInput.startsWith("http://") || urlInput.startsWith("https://")) {
+      prop.url = urlInput;
+      status = `已加载URL: ${urlInput}`;
+      initCallbacks();
     } else {
-      status = '请输入有效的HTTP/HTTPS URL';
+      status = "请输入有效的HTTP/HTTPS URL";
     }
+  };
+
+  const handleSWFReady = () => {
+    addLog("SWF准备就绪");
+    getState();
+  };
+
+  const handleMetaReady = (e: CustomEvent) => {
+    animationMeta = e.detail;
+    addLog(`动画元数据: ${JSON.stringify(e.detail)}`);
   };
 </script>
 
 <main>
+  <div class="container">
+    <div class="left-panel">
+      <div class="controls">
+        <div class="input-group">
+          <input type="file" accept=".swf" on:change={handleFileSelect} />
+          <div class="url-input">
+            <input
+              type="text"
+              bind:value={urlInput}
+              placeholder="输入SWF文件URL"
+            />
+            <button on:click={handleUrlSubmit}>加载URL</button>
+          </div>
+        </div>
+        <div class="player-buttons">
+          <button on:click={play} disabled={!prop.url}>播放</button>
+          <button on:click={pause} disabled={!prop.url}>暂停</button>
+          <button on:click={stop} disabled={!prop.url}>停止</button>
+        </div>
+        <div class="state-buttons">
+          {#each Object.values(ActionState) as state}
+            <button on:click={() => setState(state)} disabled={!prop.url}>
+              {state}
+            </button>
+          {/each}
+        </div>
+        <button on:click={getState} disabled={!prop.url}>获取当前状态</button>
+      </div>
 
-  <div class="controls">
-    <div class="input-group">
-      <input type="file" accept=".swf" on:change={handleFileSelect} />
-      <div class="url-input">
-        <input 
-          type="text" 
-          bind:value={urlInput}
-          placeholder="输入SWF文件URL"
-        />
-        <input
-          type="text"
-          bind:value={customSuffix}
-          placeholder="输入后缀参数"
-        />
-        <button on:click={handleUrlSubmit}>加载URL</button>
+      <div class="status">{status}</div>
+      <div class="debug-info">
+        <h3>当前状态: {currentState}</h3>
+        {#if animationMeta}
+          <h3>动画元数据</h3>
+          <pre>{JSON.stringify(animationMeta, null, 2)}</pre>
+        {/if}
       </div>
     </div>
-    <div class="player-buttons">
-      <button on:click={play} disabled={!swfUrl}>播放</button>
-      <button on:click={pause} disabled={!swfUrl}>暂停</button>
-      <button on:click={stop} disabled={!swfUrl}>停止</button>
+
+    <div class="right-panel">
+      <div class="player-container">
+        <PetRender
+          bind:this={petRender}
+          {prop}
+          on:swfready={handleSWFReady}
+          on:animationmetaready={handleMetaReady}
+        />
+      </div>
+      <div class="debug-logs">
+        <h3>调试日志</h3>
+        {#each debugLogs as log}
+          <div class="log-entry">{log}</div>
+        {/each}
+      </div>
     </div>
-  </div>
-
-  <div class="status">{status}</div>
-
-  <div class="player-container">
-    <PetRender bind:this={petRender} {swfUrl} />
   </div>
 </main>
 
 <style>
   main {
-    max-width: 1600px;
+    max-width: 1800px;
     margin: 0 auto;
     padding: 2rem;
-    text-align: center;
+  }
+
+  .container {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .left-panel {
+    flex: 1;
+    max-width: 400px;
+  }
+
+  .right-panel {
+    flex: 2;
   }
 
   .controls {
@@ -86,15 +178,12 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    align-items: center;
   }
 
   .input-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    width: 100%;
-    max-width: 500px;
   }
 
   .url-input {
@@ -107,26 +196,61 @@
     padding: 0.5rem;
   }
 
-  .player-buttons {
+  .player-buttons,
+  .state-buttons {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
 
+  .state-buttons button {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+
   .player-container {
-    width: 1600px;
-    height: 900px;
-    margin: 1rem auto;
+    width: 1200px;
+    height: 600px;
     border: 1px solid #ccc;
   }
 
   .status {
     margin: 1rem 0;
     font-style: italic;
-    color: #666;
+    color: #000;
   }
 
   button {
     padding: 0.5rem 1rem;
     cursor: pointer;
+  }
+
+  .debug-info {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .debug-logs {
+    margin-top: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .log-entry {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #000;
+  }
+
+  pre {
+    white-space: pre-wrap;
+    font-size: 0.8rem;
   }
 </style>
