@@ -16,8 +16,5 @@
     "svelte-check": "^4.1.4",
     "typescript": "~5.7.2",
     "vite": "^6.2.0"
-  },
-  "dependencies": {
-    "@ruffle-rs/ruffle": "0.1.0-nightly.2025.4.1"
   }
 }

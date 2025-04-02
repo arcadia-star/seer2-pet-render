@@ -2,7 +2,7 @@
   import PetRender from "./lib/PetRender.svelte";
   import { ActionState } from "./actionscript/FighterActionType";
 
-  let url = $state("fight/100.swf")
+  let url = $state("fight/100.swf");
   let petRender: PetRender;
   let status = $state("请选择SWF文件或输入URL");
   let urlInput = $state("fight/100.swf");
@@ -10,6 +10,7 @@
   let animationMeta: any = null;
   let debugLogs: string[] = $state([]);
   let availableStates: string[] = $state([]);
+  let reverse = $state(false);
 
   const handleFileSelect = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -97,6 +98,12 @@
             <button onclick={handleUrlSubmit}>加载URL</button>
           </div>
         </div>
+        <div class="reverse-control">
+          <label>
+            <input type="checkbox" bind:checked={reverse} />
+            水平翻转
+          </label>
+        </div>
         <div class="player-buttons">
           <button onclick={play} disabled={!url}>播放</button>
           <button onclick={pause} disabled={!url}>暂停</button>
@@ -139,6 +146,7 @@
           on:swfready={handleSWFReady}
           on:animationComplete={handleAnimationComplete}
           on:hit={handleHit}
+          {reverse}
         />
       </div>
       <div class="debug-logs">
@@ -208,8 +216,8 @@
   }
 
   .player-container {
-    width: 1200px;
-    height: 600px;
+    width: 1600px;
+    height: 900px;
     border: 1px solid #ccc;
   }
 

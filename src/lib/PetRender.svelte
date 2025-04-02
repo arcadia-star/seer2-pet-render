@@ -6,6 +6,7 @@
   import { createEventDispatcher } from "svelte";
 
   export let url = "";
+  export let reverse = false;
   let player = null;
   const swfUrl = "petContainer.swf";
   const instanceId = Math.random().toString(36).substring(2, 15);
@@ -60,6 +61,7 @@
     player = Ruffle.createPlayer();
     player.style.width = "100%";
     player.style.height = "100%";
+    player.style.transform = reverse ? "scaleX(-1)" : "none";
     container.appendChild(player);
 
     player
@@ -72,6 +74,7 @@
         autoplay: "on",
         unmuteOverlay: "hidden",
         upgradeToHttps: window.location.protocol === "https:",
+        splashScreen: false,
       })
       .then(() => {
         handleSWFReady();
@@ -120,7 +123,7 @@
       }
     });
   });
-  
+
   onMount(() => {
     const script = document.createElement("script");
     script.src = "https://unpkg.com/@ruffle-rs/ruffle";
@@ -178,11 +181,13 @@
     destroyPlayer();
   }
 
-  // 属性变化监听
+  // 监听url变化
+  $: url && (stop(), createPlayer());
+
+  // 监听reverse变化
   $: {
-    if (url) {
-      stop();
-      createPlayer();
+    if (player) {
+      player.style.transform = reverse ? "scaleX(-1)" : "none";
     }
   }
 </script>
@@ -194,6 +199,6 @@
     width: 100%;
     height: 100%;
     display: block;
-    logo-display: none;
+    pointer-events: none;
   }
 </style>

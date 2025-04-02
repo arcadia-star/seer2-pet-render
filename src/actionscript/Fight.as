@@ -26,7 +26,6 @@ package
 
         private function configureStage():void
         {
-            stage.align = "TL";
             stage.scaleMode = "noScale";
         }
 
@@ -67,7 +66,7 @@ package
         {
             if (ExternalInterface.available)
             {
-                data.instanceId = loaderInfo.parameters.instanceId || ''
+                data.instanceId = loaderInfo.parameters.instanceId || '';
                 ExternalInterface.call("handleEventFromSWF", eventName, data);
             }
             else
