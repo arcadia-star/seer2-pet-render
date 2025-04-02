@@ -161,23 +161,29 @@
 
 <style>
   main {
-    max-width: 1800px;
-    margin: 0 auto;
-    padding: 2rem;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
   }
 
   .container {
-    display: flex;
-    gap: 2rem;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    width: 100%;
+    height: 100%;
+    gap: 0;
   }
 
   .left-panel {
-    flex: 1;
-    max-width: 400px;
+    background: #f0f0f0;
+    padding: 1rem;
+    height: 100vh;
+    overflow-y: auto;
   }
 
   .right-panel {
-    flex: 2;
+    position: relative;
   }
 
   .controls {
@@ -216,9 +222,10 @@
   }
 
   .player-container {
-    width: 1600px;
-    height: 900px;
+    width: 100%;
+    height: 100%;
     border: 1px solid #ccc;
+    margin: 0 auto;
   }
 
   .status {
@@ -240,12 +247,17 @@
   }
 
   .debug-logs {
-    margin-top: 1rem;
-    max-height: 300px;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    width: 400px;
+    max-height: 80vh;
     overflow-y: auto;
     padding: 1rem;
-    background: #f5f5f5;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
   }
 
   .log-entry {
