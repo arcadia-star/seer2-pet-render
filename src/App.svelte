@@ -2,15 +2,14 @@
   import PetRender from "./lib/PetRender.svelte";
   import { ActionState } from "./actionscript/FighterActionType";
 
-  // let prop = { url: "fight/100.swf" };
-  let url = "fight/100.swf"
+  let url = $state("fight/100.swf")
   let petRender: PetRender;
-  let status = "请选择SWF文件或输入URL";
-  let urlInput = "fight/100.swf";
-  let currentState = "";
+  let status = $state("请选择SWF文件或输入URL");
+  let urlInput = $state("fight/100.swf");
+  let currentState = $state("");
   let animationMeta: any = null;
-  let debugLogs: string[] = [];
-  let availableStates: string[] = [];
+  let debugLogs: string[] = $state([]);
+  let availableStates: string[] = $state([]);
 
   const handleFileSelect = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -88,25 +87,25 @@
     <div class="left-panel">
       <div class="controls">
         <div class="input-group">
-          <input type="file" accept=".swf" on:change={handleFileSelect} />
+          <input type="file" accept=".swf" onchange={handleFileSelect} />
           <div class="url-input">
             <input
               type="text"
               bind:value={urlInput}
               placeholder="输入SWF文件URL"
             />
-            <button on:click={handleUrlSubmit}>加载URL</button>
+            <button onclick={handleUrlSubmit}>加载URL</button>
           </div>
         </div>
         <div class="player-buttons">
-          <button on:click={play} disabled={!url}>播放</button>
-          <button on:click={pause} disabled={!url}>暂停</button>
-          <button on:click={stop} disabled={!url}>停止</button>
+          <button onclick={play} disabled={!url}>播放</button>
+          <button onclick={pause} disabled={!url}>暂停</button>
+          <button onclick={stop} disabled={!url}>停止</button>
         </div>
         <div class="state-buttons">
           {#each Object.values(ActionState) as state}
             <button
-              on:click={() => setState(state)}
+              onclick={() => setState(state)}
               disabled={!url || !availableStates.includes(state)}
             >
               {state}
@@ -114,7 +113,7 @@
           {/each}
         </div>
         <button
-          on:click={() => {
+          onclick={() => {
             getState();
             updateAvailableStates();
           }}
