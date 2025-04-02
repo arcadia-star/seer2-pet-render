@@ -11,6 +11,8 @@
   let debugLogs: string[] = $state([]);
   let availableStates: string[] = $state([]);
   let reverse = $state(false);
+  let showSidebar = $state(true);
+  let showDebugLogs = $state(true);
 
   const handleFileSelect = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -84,7 +86,15 @@
 </script>
 
 <main>
-  <div class="container">
+  <div class="toggle-buttons">
+    <button onclick={() => showSidebar = !showSidebar}>
+      {showSidebar ? '收起侧边栏' : '展开侧边栏'}
+    </button>
+    <button onclick={() => showDebugLogs = !showDebugLogs}>
+      {showDebugLogs ? '隐藏调试日志' : '显示调试日志'}
+    </button>
+  </div>
+  <div class="container" class:sidebar-collapsed={!showSidebar}>
     <div class="left-panel">
       <div class="controls">
         <div class="input-group">
@@ -119,8 +129,8 @@
             </button>
           {/each}
         </div>
-        <button
-          onclick={() => {
+          <button
+            onclick={() => {
             getState();
             updateAvailableStates();
           }}
@@ -149,7 +159,7 @@
           {reverse}
         />
       </div>
-      <div class="debug-logs">
+      <div class="debug-logs" class:hidden={!showDebugLogs}>
         <h3>调试日志</h3>
         {#each debugLogs as log}
           <div class="log-entry">{log}</div>
@@ -167,12 +177,26 @@
     padding: 0;
   }
 
+  .toggle-buttons {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+  }
+
   .container {
     display: grid;
     grid-template-columns: 300px 1fr;
     width: 100%;
     height: 100%;
     gap: 0;
+    transition: grid-template-columns 0.3s ease;
+  }
+
+  .container.sidebar-collapsed {
+    grid-template-columns: 0 1fr;
   }
 
   .left-panel {
@@ -249,7 +273,7 @@
   .debug-logs {
     position: fixed;
     right: 20px;
-    top: 20px;
+    top: 80px;
     width: 400px;
     max-height: 80vh;
     overflow-y: auto;
@@ -258,6 +282,10 @@
     border-radius: 4px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     z-index: 100;
+  }
+
+  .debug-logs.hidden {
+    display: none;
   }
 
   .log-entry {
