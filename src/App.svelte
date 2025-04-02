@@ -2,7 +2,8 @@
   import PetRender from "./lib/PetRender.svelte";
   import { ActionState } from "./actionscript/FighterActionType";
 
-  let prop = { url: "fight/100.swf" };
+  // let prop = { url: "fight/100.swf" };
+  let url = "fight/100.swf"
   let petRender: PetRender;
   let status = "请选择SWF文件或输入URL";
   let urlInput = "fight/100.swf";
@@ -14,7 +15,7 @@
   const handleFileSelect = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
-      prop.url = URL.createObjectURL(file);
+      url = URL.createObjectURL(file);
       status = `已加载: ${file.name}`;
     }
   };
@@ -64,7 +65,7 @@
   };
 
   const handleUrlSubmit = () => {
-    prop.url = urlInput;
+    url = urlInput;
     status = `已加载URL: ${urlInput}`;
   };
 
@@ -98,15 +99,15 @@
           </div>
         </div>
         <div class="player-buttons">
-          <button on:click={play} disabled={!prop.url}>播放</button>
-          <button on:click={pause} disabled={!prop.url}>暂停</button>
-          <button on:click={stop} disabled={!prop.url}>停止</button>
+          <button on:click={play} disabled={!url}>播放</button>
+          <button on:click={pause} disabled={!url}>暂停</button>
+          <button on:click={stop} disabled={!url}>停止</button>
         </div>
         <div class="state-buttons">
           {#each Object.values(ActionState) as state}
             <button
               on:click={() => setState(state)}
-              disabled={!prop.url || !availableStates.includes(state)}
+              disabled={!url || !availableStates.includes(state)}
             >
               {state}
             </button>
@@ -117,7 +118,7 @@
             getState();
             updateAvailableStates();
           }}
-          disabled={!prop.url}>获取当前状态</button
+          disabled={!url}>获取当前状态</button
         >
       </div>
 
@@ -135,7 +136,7 @@
       <div class="player-container">
         <PetRender
           bind:this={petRender}
-          {prop}
+          {url}
           on:swfready={handleSWFReady}
           on:animationComplete={handleAnimationComplete}
           on:hit={handleHit}

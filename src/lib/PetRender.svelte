@@ -5,9 +5,10 @@
   import { onMount, onDestroy } from "svelte";
   import { createEventDispatcher } from "svelte";
 
-  export let prop = { url: "" };
+  export let url = "";
   let player = null;
   const swfUrl = "petContainer.swf";
+  const instanceId = Math.random().toString(36).substring(2, 15);
   let container = null;
   let animationMeta = null;
   const dispatch = createEventDispatcher();
@@ -24,12 +25,24 @@
   if (!window.handleEventFromSWF) {
     window.handleEventFromSWF = (eventName, data) => {
       console.debug(`收到 SWF 事件: ${eventName}`, data);
+      // 确保所有事件都包含instanceId
+      const eventData = {
+        ...data,
+        instanceId: data?.instanceId || ''
+      };
+      
+      // 只处理匹配当前实例ID的事件
+      if (eventData.instanceId !== instanceId) {
+        console.debug(`忽略不匹配实例的事件: ${eventName} (期望: ${instanceId}, 收到: ${eventData.instanceId})`);
+        return;
+      }
+
       switch (eventName) {
         case "animationComplete":
-          dispatch("animationComplete", data);
+          dispatch("animationComplete", eventData);
           break;
         case "hit":
-          dispatch("hit", data);
+          dispatch("hit", eventData);
           break;
         default:
           console.warn(`未知事件: ${eventName}`);
@@ -51,7 +64,7 @@
     player
       .ruffle()
       .load({
-        url: `${swfUrl}?url=${encodeURIComponent(prop.url)}`,
+        url: `${swfUrl}?url=${encodeURIComponent(url)}&instanceId=${instanceId}`,
         allowScriptAccess: true, // 需要允许脚本访问以支持ExternalInterface
         wmode: "transparent",
         logLevel: "debug",
@@ -92,8 +105,13 @@
     
     // 监听回调就绪事件
     window.addEventListener('message', (e) => {
-      if (e.data === 'petRenderCallbacksReady') {
-        callbacksReady = true;
+      if (e.data?.type === 'petRenderCallbacksReady') {
+        // 确保事件包含instanceId且匹配当前实例
+        if (e.data.instanceId === instanceId) {
+          callbacksReady = true;
+        } else {
+          console.debug(`忽略不匹配实例的回调就绪事件 (期望: ${instanceId}, 收到: ${e.data.instanceId})`);
+        }
       }
     });
   });
@@ -150,7 +168,7 @@
 
   // 属性变化监听
   $: {
-    if (prop.url && player) {
+    if (url && player) {
       stop();
     }
   }

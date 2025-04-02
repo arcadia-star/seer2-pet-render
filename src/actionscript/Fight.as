@@ -53,7 +53,7 @@ package
                     reportAnimationInfo();
                     setState(FighterActionType.IDLE);
                     ExternalInterface.call("eval",
-                            "window.postMessage('petRenderCallbacksReady', '*')");
+                            "window.postMessage({type:'petRenderCallbacksReady',instanceId:'" + loaderInfo.parameters.instanceId + "'}, '*')");
                 });
             var finalUrl:String = url;
             if (url.indexOf("http://") === 0)
@@ -67,6 +67,7 @@ package
         {
             if (ExternalInterface.available)
             {
+                data.instanceId = loaderInfo.parameters.instanceId || ''
                 ExternalInterface.call("handleEventFromSWF", eventName, data);
             }
             else
