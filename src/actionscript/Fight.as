@@ -14,7 +14,7 @@ package
     {
         private var mc:MovieClip;
         private var activeAnimationMC:MovieClip;
-        private var currentState:String = FighterActionType.IDLE;
+        private var currentState:String = FighterActionType.BLANK;
 
         public function Fight()
         {
