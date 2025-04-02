@@ -2,10 +2,10 @@
   import PetRender from "./lib/PetRender.svelte";
   import { ActionState } from "./actionscript/FighterActionType";
 
-  let prop = { url: "https://seer2.61.com/res/pet/fight/100.swf" };
+  let prop = { url: "fight/100.swf" };
   let petRender: PetRender;
   let status = "请选择SWF文件或输入URL";
-  let urlInput = "https://seer2.61.com/res/pet/fight/100.swf";
+  let urlInput = "fight/100.swf";
   let currentState = "";
   let animationMeta: any = null;
   let callbacks = {
