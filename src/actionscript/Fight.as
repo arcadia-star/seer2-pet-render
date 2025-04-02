@@ -74,6 +74,7 @@ package
                 trace('Error: not has mc');
                 return;
             }
+            if (activeAnimationMC) activeAnimationMC.stop()
             currentState = state;
             once(Event.FRAME_CONSTRUCTED, function(e:Event):void
                 {

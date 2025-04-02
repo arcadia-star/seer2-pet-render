@@ -18,22 +18,25 @@
     if (window.RufflePlayer) return;
   };
 
-  window.handleEventFromSWF = (eventName, data) => {
-    switch (eventName) {
-      case "animationComplete":
-        if (callbacks.onAnimationComplete) {
-          callbacks.onAnimationComplete(data);
-        }
-        break;
-      case "hit":
-        if (callbacks.onHit) {
-          callbacks.onHit(data);
-        }
-        break;
-      default:
-        console.warn(`未知事件: ${eventName}`);
-    }
-  };
+  if (!window.handleEventFromSWF) {
+    window.handleEventFromSWF = (eventName, data) => {
+      console.debug(`收到 SWF 事件: ${eventName}`, data);
+      switch (eventName) {
+        case "animationComplete":
+          if (callbacks.onAnimationComplete) {
+            callbacks.onAnimationComplete(data);
+          }
+          break;
+        case "hit":
+          if (callbacks.onHit) {
+            callbacks.onHit(data);
+          }
+          break;
+        default:
+          console.warn(`未知事件: ${eventName}`);
+      }
+    };
+  }
 
   const createPlayer = () => {
     if (!container || !swfUrl) return;
