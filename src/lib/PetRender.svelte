@@ -154,6 +154,7 @@
 
   // 播放控制方法
   export function play() {
+    if(!player) createPlayer()
     player?.play();
   }
 
@@ -163,13 +164,13 @@
 
   export function stop() {
     destroyPlayer();
-    createPlayer();
   }
 
   // 属性变化监听
   $: {
-    if (url && player) {
+    if (url) {
       stop();
+      createPlayer();
     }
   }
 </script>
