@@ -164,10 +164,6 @@ package
 
         private function handleAnimationComplete():void
         {
-            sendEvent('animationComplete', {
-                        state: currentState,
-                        duration: getAnimationDuration()
-                    });
             if (isStopLastFrame(currentState))
             {
                 activeAnimationMC.stop();
@@ -180,6 +176,10 @@ package
             }
             else
             {
+                sendEvent('animationComplete', {
+                            state: currentState,
+                            duration: getAnimationDuration()
+                        });
                 setState(FighterActionType.IDLE);
             }
         }
