@@ -73,13 +73,9 @@
   };
 
   const handleUrlSubmit = () => {
-    if (urlInput.startsWith("http://") || urlInput.startsWith("https://")) {
-      prop.url = urlInput;
-      status = `已加载URL: ${urlInput}`;
-      initCallbacks();
-    } else {
-      status = "请输入有效的HTTP/HTTPS URL";
-    }
+    prop.url = urlInput;
+    status = `已加载URL: ${urlInput}`;
+    initCallbacks();
   };
 
   const handleSWFReady = () => {
