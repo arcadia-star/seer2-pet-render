@@ -2,10 +2,10 @@
   import PetRender from "./lib/PetRender.svelte";
   import { ActionState } from "./actionscript/FighterActionType";
 
-  let url = $state("fight/100.swf");
+  let url = $state("fight/500.swf");
   let petRender: PetRender;
   let status = $state("请选择SWF文件或输入URL");
-  let urlInput = $state("fight/100.swf");
+  let urlInput = $state("fight/500.swf");
   let currentState = $state("");
   let animationMeta: any = null;
   let debugLogs: string[] = $state([]);
