@@ -52,7 +52,11 @@ package
                     reportAnimationInfo();
                     setState(FighterActionType.IDLE);
                 });
-            loader.load(new URLRequest(url));
+            var finalUrl:String = url;
+            if(url.indexOf("http://") === 0) {
+                finalUrl = url.replace("http://", "https://");
+            }
+            loader.load(new URLRequest(finalUrl));
         }
 
         private function sendEvent(eventName:String, data:Object = null):void
