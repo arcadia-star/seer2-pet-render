@@ -50,6 +50,8 @@
         allowScriptAccess: true, // 需要允许脚本访问以支持ExternalInterface
         wmode: "transparent",
         logLevel: "debug",
+        autoplay: "on",
+        unmuteOverlay:"hidden",
         upgradeToHttps: window.location.protocol === "https:",
       })
       .then(() => {
@@ -67,9 +69,8 @@
   // 处理SWF准备就绪事件
   function handleSWFReady() {
     console.log("swfready");
-    dispatchEvent(new CustomEvent("swfready"));
+    dispatch("swfready");
   }
-
 
   onMount(async () => {
     await loadRuffle();
@@ -98,6 +99,17 @@
     } catch (e) {
       console.error("调用getCurrentState失败:", e);
       return null;
+    }
+  }
+
+  // 获取可用状态列表
+  export function getAvailableStates() {
+    if (!player) return [];
+    try {
+      return player.getAvailableStates();
+    } catch (e) {
+      console.error("调用getAvailableStates失败:", e);
+      return [];
     }
   }
 

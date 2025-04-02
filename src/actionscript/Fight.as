@@ -36,6 +36,7 @@ package
             {
                 ExternalInterface.addCallback("setState", setState);
                 ExternalInterface.addCallback("getState", getState);
+                ExternalInterface.addCallback("getAvailableStates", getAvailableStates);
             }
             catch (e:Error)
             {
@@ -53,7 +54,8 @@ package
                     setState(FighterActionType.IDLE);
                 });
             var finalUrl:String = url;
-            if(url.indexOf("http://") === 0) {
+            if (url.indexOf("http://") === 0)
+            {
                 finalUrl = url.replace("http://", "https://");
             }
             loader.load(new URLRequest(finalUrl));
@@ -210,7 +212,25 @@ package
 
         private function getAvailableStates():Array
         {
-            return FighterActionType.ALL_TYPES;
+            if (!mc)
+                return [];
+
+            var availableStates:Array = [];
+            var labels:Array = mc.currentLabels;
+            var labelNames:Array = labels.map(function(item:Object, index:int, array:Array):String
+                {
+                    return item.name;
+                });
+
+            for each (var state:String in FighterActionType.ALL_TYPES)
+            {
+                if (labelNames.indexOf(state) != -1)
+                {
+                    availableStates.push(state);
+                }
+            }
+
+            return availableStates;
         }
     }
 }

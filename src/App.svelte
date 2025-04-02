@@ -9,6 +9,7 @@
   let currentState = "";
   let animationMeta: any = null;
   let debugLogs: string[] = [];
+  let availableStates: string[] = [];
   let lastState = "";
 
   const handleFileSelect = (e: Event) => {
@@ -75,11 +76,12 @@
   const handleSWFReady = () => {
     addLog("SWF准备就绪");
     getState();
+    updateAvailableStates();
   };
 
-  const handleMetaReady = (e: CustomEvent) => {
-    animationMeta = e.detail;
-    addLog(`动画元数据: ${JSON.stringify(e.detail)}`);
+  const updateAvailableStates = () => {
+    availableStates = petRender?.getAvailableStates() || [];
+    addLog(`可用状态: ${JSON.stringify(availableStates)}`);
   };
 </script>
 
@@ -105,12 +107,21 @@
         </div>
         <div class="state-buttons">
           {#each Object.values(ActionState) as state}
-            <button on:click={() => setState(state)} disabled={!prop.url}>
+            <button
+              on:click={() => setState(state)}
+              disabled={!prop.url || !availableStates.includes(state)}
+            >
               {state}
             </button>
           {/each}
         </div>
-        <button on:click={getState} disabled={!prop.url}>获取当前状态</button>
+        <button
+          on:click={() => {
+            getState();
+            updateAvailableStates();
+          }}
+          disabled={!prop.url}>获取当前状态</button
+        >
       </div>
 
       <div class="status">{status}</div>
@@ -129,7 +140,6 @@
           bind:this={petRender}
           {prop}
           on:swfready={handleSWFReady}
-          on:animationmetaready={handleMetaReady}
           on:animationComplete={handleAnimationComplete}
           on:hit={handleHit}
         />
