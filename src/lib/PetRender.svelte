@@ -54,7 +54,7 @@
       allowScriptAccess: true, // 需要允许脚本访问以支持ExternalInterface
       wmode: "transparent",
       logLevel: "debug",
-      "upgradeToHttps": window.location.protocol === "https:",
+      upgradeToHttps: window.location.protocol === "https:",
     });
 
     // 监听SWF事件
