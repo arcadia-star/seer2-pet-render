@@ -10,7 +10,6 @@
   const swfUrl = "petContainer.swf";
   const instanceId = Math.random().toString(36).substring(2, 15);
   let container = null;
-  let animationMeta = null;
   const dispatch = createEventDispatcher();
   let callbacksReady = false;
   let readyPromiseResolve;
@@ -80,6 +79,7 @@
   const destroyPlayer = () => {
     if (player && container) {
       container.removeChild(player);
+      callbacksReady=false;
       player = null;
     }
   };
