@@ -13,7 +13,7 @@
   let availableStates: string[] = $state([]);
   let reverse = $state(false);
   let showSidebar = $state(true);
-  let showDebugLogs = $state(true);
+  let showDebugLogs = $state(false);
   let isMobile = $state(false);
   let showAll = $state(false);
 
