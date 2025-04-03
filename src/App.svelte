@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import PetRender from "./lib/PetRender.svelte";
   import { ActionState } from "./actionscript/FighterActionType";
 
@@ -13,6 +14,13 @@
   let reverse = $state(false);
   let showSidebar = $state(true);
   let showDebugLogs = $state(true);
+  let isMobile = $state(false);
+  let showAll = $state(false);
+
+  const checkMobile = () => {
+    isMobile = window.innerWidth < 768;
+    showAll = isMobile;
+  };
 
   const handleFileSelect = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -70,6 +78,14 @@
     url = urlInput;
     status = `已加载URL: ${urlInput}`;
   };
+
+  onMount(() => {
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  });
 
   const handleSWFReady = async () => {
     addLog("SWF准备就绪");
@@ -157,6 +173,7 @@
           on:animationComplete={handleAnimationComplete}
           on:hit={handleHit}
           {reverse}
+          scale={showAll ? "showAll" : "noscale"}
         />
       </div>
       <div class="debug-logs" class:hidden={!showDebugLogs}>
@@ -187,44 +204,63 @@
 </main>
 
 <style>
+  :global(html) {
+    font-size: 16px;
+  }
+
   main {
     width: 100vw;
     height: 100vh;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
   }
 
   .toggle-buttons {
     position: fixed;
-    top: 10px;
-    right: 20px;
+    top: 0.5rem;
+    right: 1rem;
     z-index: 1000;
     display: flex;
-    gap: 10px;
+    gap: 0.5rem;
   }
 
   .container {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 1fr;
     width: 100%;
     height: 100%;
     gap: 0;
-    transition: grid-template-columns 0.3s ease;
   }
 
-  .container.sidebar-collapsed {
-    grid-template-columns: 0 1fr;
+  .container.sidebar-collapsed .left-panel {
+    display: none;
   }
 
   .left-panel {
     background: #f0f0f0;
     padding: 1rem;
-    height: 100vh;
+    height: auto;
     overflow-y: auto;
   }
 
   .right-panel {
     position: relative;
+    min-height: 50vh;
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      grid-template-columns: 18rem 1fr;
+    }
+
+    .container.sidebar-collapsed {
+      grid-template-columns: 0 1fr;
+    }
+
+    .left-panel {
+      height: 100vh;
+    }
   }
 
   .controls {
@@ -242,12 +278,15 @@
 
   .url-input {
     display: flex;
+    flex-direction: column;
     gap: 0.5rem;
   }
 
   .url-input input {
     flex-grow: 1;
     padding: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .player-buttons,
@@ -260,6 +299,14 @@
   .state-buttons button {
     font-size: 0.8rem;
     padding: 0.3rem 0.6rem;
+    flex-grow: 1;
+    min-width: 5rem;
+  }
+
+  @media (min-width: 768px) {
+    .url-input {
+      flex-direction: row;
+    }
   }
 
   .player-container {
@@ -289,16 +336,30 @@
 
   .debug-logs {
     position: fixed;
-    right: 20px;
-    top: 80px;
-    width: 400px;
-    max-height: 80vh;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 30vh;
     overflow-y: auto;
     padding: 1rem;
     background: rgba(255, 255, 255, 0.9);
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     z-index: 100;
+  }
+
+  @media (min-width: 768px) {
+    .debug-logs {
+      right: 1rem;
+      top: 3rem;
+      bottom: auto;
+      left: auto;
+      width: 25rem;
+      max-height: 80vh;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
   }
 
   .debug-logs.hidden {
@@ -320,18 +381,18 @@
 
   .github-link {
     position: fixed;
-    bottom: 10px;
-    right: 20px;
+    bottom: 0.5rem;
+    right: 0.5rem;
     z-index: 1000;
     background: #24292e;
     color: white;
-    padding: 8px 12px;
+    padding: 0.5rem 0.75rem;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 0.875rem;
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
   }
 
   .github-link:hover {

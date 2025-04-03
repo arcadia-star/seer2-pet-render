@@ -7,6 +7,7 @@
 
   export let url = "";
   export let reverse = false;
+  export let scale = "noscale";
   let player = null;
   const swfUrl = "petContainer.swf";
   const instanceId = Math.random().toString(36).substring(2, 15);
@@ -19,7 +20,9 @@
   });
 
   const loadRuffle = async () => {
-    if (window.RufflePlayer) return;
+    while (!window.RufflePlayer) {
+      await new Promise((res) => setTimeout(res, 100));
+    }
   };
 
   if (!window.handleEventFromSWF) {
@@ -56,7 +59,10 @@
     if (!container || !swfUrl) return;
 
     const Ruffle = window.RufflePlayer?.newest();
-    if (!Ruffle) return;
+    if (!Ruffle) {
+      console.log("Ruffle doesnt exist");
+      return;
+    }
 
     player = Ruffle.createPlayer();
     player.style.width = "100%";
@@ -70,11 +76,12 @@
         url: `${swfUrl}?url=${encodeURIComponent(url)}&instanceId=${instanceId}`,
         allowScriptAccess: true, // 需要允许脚本访问以支持ExternalInterface
         wmode: "transparent",
-        logLevel: "debug",
         autoplay: "on",
         unmuteOverlay: "hidden",
         upgradeToHttps: window.location.protocol === "https:",
         splashScreen: false,
+        scale: scale,
+        forceScale: scale != "noscale",
       })
       .then(() => {
         handleSWFReady();
@@ -106,6 +113,10 @@
   }
 
   onMount(async () => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/@ruffle-rs/ruffle/ruffle.min.js";
+    script.async = true;
+    document.body.appendChild(script);
     await loadRuffle();
     createPlayer();
 
@@ -122,13 +133,6 @@
         }
       }
     });
-  });
-
-  onMount(() => {
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/@ruffle-rs/ruffle";
-    script.async = true;
-    document.body.appendChild(script);
   });
 
   onDestroy(() => {
@@ -188,6 +192,7 @@
   $: {
     if (player) {
       player.style.transform = reverse ? "scaleX(-1)" : "none";
+      player.scale = scale;
     }
   }
 </script>
