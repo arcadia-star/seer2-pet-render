@@ -86,9 +86,10 @@ package
                 return;
             if (activeAnimationMC)
                 activeAnimationMC.stop();
-            currentState = state;
+
             once(Event.FRAME_CONSTRUCTED, function(e:Event):void
                 {
+                    currentState = state;
                     initAnimateMovieClip(e);
                 });
             mc.gotoAndStop(state);
