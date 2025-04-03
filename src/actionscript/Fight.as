@@ -51,8 +51,12 @@ package
                     initMovieClip(loader);
                     reportAnimationInfo();
                     setState(FighterActionType.IDLE);
-                    ExternalInterface.call("eval",
-                            "window.postMessage({type:'petRenderCallbacksReady',instanceId:'" + loaderInfo.parameters.instanceId + "'}, '*')");
+                    ExternalInterface.call("postMessage",
+                            {
+                                type: 'petRenderCallbacksReady',
+                                instanceId: loaderInfo.parameters.instanceId
+                            },
+                            '*');
                 });
             var finalUrl:String = url;
             if (url.indexOf("http://") === 0)
