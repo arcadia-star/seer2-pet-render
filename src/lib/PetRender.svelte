@@ -73,7 +73,7 @@
     player
       .ruffle()
       .load({
-        url: `${swfUrl}?url=${encodeURIComponent(url)}&instanceId=${instanceId}`,
+        url: `${swfUrl}?url=${encodeURIComponent(url)}&instanceId=${instanceId}&scale=${scale}`,
         allowScriptAccess: true, // 需要允许脚本访问以支持ExternalInterface
         wmode: "transparent",
         autoplay: "on",
@@ -81,7 +81,6 @@
         upgradeToHttps: window.location.protocol === "https:",
         splashScreen: false,
         scale: scale,
-        forceScale: scale != "noscale",
       })
       .then(() => {
         handleSWFReady();

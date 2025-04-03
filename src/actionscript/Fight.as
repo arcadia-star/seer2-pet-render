@@ -26,7 +26,7 @@ package
 
         private function configureStage():void
         {
-            stage.scaleMode = "noScale";
+            stage.scaleMode = loaderInfo.parameters.scale || "noScale";
         }
 
         private function setupExternalInterface():void
