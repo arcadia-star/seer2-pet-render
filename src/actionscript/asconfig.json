@@ -1,9 +1,0 @@
-{
-	"compilerOptions": {
-		"source-path": [
-			"."
-		],
-		"output": "../../public/petContainer.swf"
-	},
-	"mainClass": "Fight"
-}

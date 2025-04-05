@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import PetRender from "./lib/PetRender.svelte";
-  import { ActionState } from "./actionscript/FighterActionType";
+  import { ActionState } from "./FighterActionType";
+  import 'seer2-pet-animator'
 
   let url = $state("fight/500.swf");
-  let petRender: PetRender;
+  let petRender: PetRenderElement;
   let status = $state("请选择SWF文件或输入URL");
   let urlInput = $state("fight/500.swf");
   let currentState = $state("");
@@ -81,16 +81,21 @@
 
   onMount(() => {
     checkMobile();
-    window.addEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    petRender = document.querySelector('pet-render')! as PetRenderElement;
+    petRender.addEventListener('ready', handleSWFReady);
+    petRender.addEventListener('animationComplete', handleAnimationComplete);
+    petRender.addEventListener('hit', handleHit);
     return () => {
-      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener("resize", checkMobile);
+      petRender?.removeEventListener('ready', handleSWFReady);
+      petRender?.removeEventListener('animationComplete', handleAnimationComplete);
+      petRender?.removeEventListener('hit', handleHit);
     };
   });
 
   const handleSWFReady = async () => {
     addLog("SWF准备就绪");
-    await petRender?.whenReady();
-    addLog("所有就绪条件满足");
     getState();
     updateAvailableStates();
   };
@@ -166,13 +171,10 @@
 
     <div class="right-panel">
       <div class="player-container">
-        <PetRender
-          bind:this={petRender}
-          {url}
-          on:swfready={handleSWFReady}
-          on:animationComplete={handleAnimationComplete}
-          on:hit={handleHit}
-          {reverse}
+        <!-- svelte-ignore element_invalid_self_closing_tag -->
+        <pet-render
+          url={url}
+          reverse={reverse}
           scale={showAll ? "showAll" : "noscale"}
         />
       </div>
